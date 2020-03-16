@@ -450,7 +450,7 @@ def main():
                         type=float,
                         help="Whether use random perturbation for ablation study")
     parser.add_argument("--max_seq_length",
-                        default=128,
+                        default=64,
                         type=int,
                         help="max sequence length for BERT target model")
 
@@ -481,7 +481,7 @@ def main():
         model = NLI_infer_BERT(args.target_model_path, nclasses=args.nclasses, max_seq_length=args.max_seq_length)
     predictor = model.text_pred
     print("Model built!")
-
+    tf.compat.v1.disable_eager_execution()
     # prepare synonym extractor
     # build dictionary via the embedding file
     idx2word = {}
@@ -508,10 +508,18 @@ def main():
             for line in ifile:
                 embedding = [float(num) for num in line.strip().split()[1:]]
                 embeddings.append(embedding)
-        embeddings = np.array(embeddings)
-        product = np.dot(embeddings, embeddings.T)
-        norm = np.linalg.norm(embeddings, axis=1, keepdims=True)
-        cos_sim = product / np.dot(norm, norm.T)
+        #embeddings = np.array(embeddings)
+        #print(embeddings.shape)
+        #product = np.dot(embeddings, embeddings.T)
+        #print(product.shape)
+        #norm = np.linalg.norm(embeddings, axis=1, keepdims=True)
+        #print(norm.shape)
+        #cos_sim = product / np.dot(norm, norm.T)
+        embeddings = torch.tensor(embeddings)
+        product = torch.mm(embeddings,embeddings.t())
+        norm = embeddings.norm(dim=1,keepdim=True)
+        cos_sim = product / torch.mm(norm, norm.T)
+        cos_sim = cos_sim.numpy()
     print("Cos sim import finished!")
 
     # build the semantic similarity module
