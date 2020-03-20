@@ -43,7 +43,7 @@ class ReplacementTracker:
 
 
 def main(filepath):
-    with open(filepath, 'r'):
+    with open(filepath, 'r') as f:
         reptracker = ReplacementTracker(f)
     for pair in reptracker.list:
         print(pair['replacements'])
