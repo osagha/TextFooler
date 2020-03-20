@@ -1,17 +1,16 @@
-
+import sys
 
 class ReplacementTracker:
-    def __init__(self, path):
-        self.path = path
-        self.list = self.create_sentence_pairs(path)
-    def create_sentence_pairs(self, path):
+    def __init__(self, f):
+        lines = f.readlines()
+        self.list = self.create_sentence_pairs(lines)
+    def create_sentence_pairs(self, lines):
         # pair_list: list of dictionaries, to be returned
         pair_list = []
         # sent_pair: dictionary that holds a pair of sentences
         # 'orig' for original and 'adv' for adversarial
         # and the list of replacements (a list of 2-element lists)
         sent_pair = {}
-        lines = open(path, 'r').readlines()
         for line in lines:
             tokens = line.split()
             if tokens == []:
@@ -43,7 +42,13 @@ class ReplacementTracker:
         return replacements
 
 
+def main(filepath):
+    with open(filepath, 'r'):
+        reptracker = ReplacementTracker(f)
+    for pair in reptracker.list:
+        print(pair['replacements'])
+    return reptracker
 
-reptracker = ReplacementTracker('adversaries.txt')
-for pair in reptracker.list:
-    print(pair['replacements'])
+if __name__ == "__main__":
+    main(sys.argv[1])
+    print(sys.argv[1])
